@@ -12,13 +12,13 @@
 #property indicator_buffers 2
 #property indicator_plots   1
 
-#property indicator_label1  "RRSI"
+#property indicator_label1  "RSI High"
 #property indicator_type1   DRAW_LINE
 #property indicator_color1  clrSteelBlue
 #property indicator_style1  STYLE_SOLID
 #property indicator_width1  1
 
-#property indicator_label2  "RRSI"
+#property indicator_label2  "RSI Slow"
 #property indicator_type2   DRAW_LINE
 #property indicator_color2  clrSpringGreen
 #property indicator_style2  STYLE_SOLID
@@ -26,29 +26,29 @@
 
 #property indicator_minimum  -0.5
 #property indicator_maximum  +0.5
-#property indicator_level1 -0.3
-#property indicator_level2 -0.2
-#property indicator_level3 +0.2
-#property indicator_level4 +0.3
 #property indicator_levelwidth 1
 #property indicator_levelstyle STYLE_DOT
 #property indicator_levelcolor clrGray
 
-double RRSIBuffer1[];
-double RRSIBuffer2[];
+double RSIBuffer1[];
+double RSIBuffer2[];
 
-input int    period1 = 25;   // RSSI 1 period
-input double trim1   = 0.30; // RSSI 1 trim threshold
-input int    period2 = 50;   // RSSI 2 period
-input double trim2   = 0.10; // RSSI 2 trim threshold
+input int    period1 = 25;   // High RSI period
+input double trim1   = 0.30; // High RSI trim threshold
+input int    period2 = 50;   // Slow RSI period
+input double trim2   = 0.10; // Slow RSI trim threshold
 
 int OnInit()
 {
-   SetIndexBuffer(0, RRSIBuffer1);
-   SetIndexBuffer(1, RRSIBuffer2);
+   SetIndexBuffer(0, RSIBuffer1);
+   SetIndexBuffer(1, RSIBuffer2);
 
    IndicatorSetInteger(INDICATOR_LEVELS, 4);
-
+   IndicatorSetDouble(INDICATOR_LEVELVALUE, 0, -trim1);
+   IndicatorSetDouble(INDICATOR_LEVELVALUE, 1, +trim1);
+   IndicatorSetDouble(INDICATOR_LEVELVALUE, 2, -trim2);
+   IndicatorSetDouble(INDICATOR_LEVELVALUE, 3, +trim2);
+   
    return(INIT_SUCCEEDED);
 }
 
@@ -70,14 +70,14 @@ int OnCalculate(const int rates_total,
       limit++;
 
    for(i = 0; i < limit; i++) {
-      RRSIBuffer1[i] = iRSI(NULL, 0, period1, PRICE_WEIGHTED, i)/50 - 1.0;
-      RRSIBuffer2[i] = iRSI(NULL, 0, period2, PRICE_WEIGHTED, i)/50 - 1.0;
+      RSIBuffer1[i] = iRSI(NULL, 0, period1, PRICE_WEIGHTED, i)/50 - 1.0;
+      RSIBuffer2[i] = iRSI(NULL, 0, period2, PRICE_WEIGHTED, i)/50 - 1.0;
 
-      if (trim1 >= MathAbs(RRSIBuffer1[i])) RRSIBuffer1[i] = 0;
-      if (trim2 >= MathAbs(RRSIBuffer2[i])) RRSIBuffer2[i] = 0;
+      if (trim1 >= MathAbs(RSIBuffer1[i])) RSIBuffer1[i] = 0;
+      if (trim2 >= MathAbs(RSIBuffer2[i])) RSIBuffer2[i] = 0;
 
-      if (0 == RRSIBuffer1[i]) RRSIBuffer2[i] = 0;
-      if (0 == RRSIBuffer2[i]) RRSIBuffer1[i] = 0;
+      if (0 == RSIBuffer1[i]) RSIBuffer2[i] = 0;
+      if (0 == RSIBuffer2[i]) RSIBuffer1[i] = 0;
    }
 
    return(rates_total);
